@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     flex: 1, 
     justifyContent: "center", 
     alignItems: "center", 
-    backgroundColor: "#ffe6f0", // rosa claro
+    backgroundColor: "#ffe6f0", 
     padding: 20 
   },
   title: { 
@@ -105,3 +105,4 @@ const styles = StyleSheet.create({
     fontWeight: "bold" 
   }
 });
+

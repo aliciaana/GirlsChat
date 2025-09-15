@@ -1,6 +1,6 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
-import { useState } from "react";
 import { useRouter } from "expo-router";
+import { useState } from "react";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -23,11 +23,12 @@ export default function LoginScreen() {
         style={styles.input}
         placeholder="Senha"
         placeholderTextColor="#888"
+        secureTextEntry
         value={password}
         onChangeText={setPassword}
       />
 
-      <TouchableOpacity style={styles.buttonPink} onPress={() => {}}>
+      <TouchableOpacity style={styles.buttonPink} onPress={() => router.push("/conversations")}>
         <Text style={styles.buttonText}>Entrar</Text>
       </TouchableOpacity>
 
