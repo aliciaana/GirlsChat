@@ -58,7 +58,7 @@ Join our community of developers creating universal apps.
 
 ## Get started into Back-end
 
-This project uses REST API and WebSocket to connect with Back-end.
+This project uses REST API and WebSocket to connect with Back-end, and the server was done with AdonisJS.
 The WebSocket will be used to send messages in live.
 To run it:
 
