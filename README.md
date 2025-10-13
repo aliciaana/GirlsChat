@@ -17,6 +17,8 @@ Enviar e receber mensagens
 
 📎 Visualizar o Diagrama:
 https://app.diagrams.net/?src=about
+<img width="1170" height="1522" alt="image" src="https://github.com/user-attachments/assets/ea4f786f-bf8d-414d-b796-b088b93ef350" />
+
 
 🎨 Protótipo no Figma
 
