@@ -1,5 +1,5 @@
+import Message from "App/Models/Message";
 import ChatsService from "./ChatsService";
-import db from "./ConnectFirebaseService";
 
 export default class MessagesService {
     public async getMessagesByChatID(chatID: string) {
@@ -7,15 +7,14 @@ export default class MessagesService {
             if (!chatID) {
                 throw new Error("O ID do chat é obrigatório")
             }
-            const messagesSnapshot = await db.collection('chats').doc(chatID).collection('messages').get();
-            const messages = messagesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const messages = await Message.query().where('id_chat', chatID).orderBy('created_at', 'asc');
             return messages;
         } catch (error) {
             throw new Error("Erro ao buscar mensagens: " + error.message);
         }
     }
 
-    public async createMessage(chatID: string, newMessage: { sentBy: string; sentTo: string; text: string; createdAt: Date; seen: boolean; }) {
+    public async createMessage(chatID: string | number, newMessage: { sentBy: string; sentTo: string; text: string; }) {
         try {
             if (!newMessage.sentBy || !newMessage.sentTo || !newMessage.text) {
                 throw new Error("Os campos sentBy, sentTo e text são obrigatórios");
@@ -25,7 +24,15 @@ export default class MessagesService {
                 const chat = await chatsService.createChat(newMessage.sentBy, newMessage.sentTo);
                 chatID = chat.id;
             }
-            const messageRef = await db.collection('chats').doc(chatID).collection('messages').add(newMessage);
+            const messageRef = await Message.create({
+                id_chat: Number(chatID),
+                sentBy: Number(newMessage.sentBy),
+                sentTo: Number(newMessage.sentTo),
+                text: newMessage.text,
+                seen: false,
+            });
+            const chatsService = new ChatsService();
+            await chatsService.updateLastMessage(chatID.toString(), newMessage.text);
             return messageRef;
         } catch (error) {
             throw new Error("Erro ao criar mensagem: " + error.message);
@@ -37,13 +44,11 @@ export default class MessagesService {
             if (!chatID) {
                 throw new Error("O ID do chat é obrigatório");
             }
-            const messagesSnapshot = await db.collection('chats').doc(chatID).collection('messages').where('seen', '==', false).get();
-            const batch = db.batch();
-            messagesSnapshot.docs.forEach(doc => {
-                const messageRef = db.collection('chats').doc(chatID).collection('messages').doc(doc.id);
-                batch.update(messageRef, { seen: true });
-            });
-            await batch.commit();
+            const chat = await new ChatsService().showChat(chatID);
+            if (!chat) {
+                throw new Error("Chat não encontrado");
+            }
+            await Message.query().where('id_chat', chatID).update({ seen: true });
         } catch (error) {
             throw new Error("Erro ao atualizar status das mensagens: " + error.message);
         }

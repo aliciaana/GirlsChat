@@ -1,5 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
-import ChatsService from '../../../services/ChatsService';
+import ChatsService from 'App/services/ChatsService';
 
 export default class ChatsController {
     private chatsService = new ChatsService();
@@ -16,11 +16,10 @@ export default class ChatsController {
     public async show({ request, response }: HttpContextContract) {
         try {
             const { chatID } = request.qs();
-            const chatSnapshot = await this.chatsService.showChat(chatID);
-            if (!chatSnapshot) {
-                return response.json({ success: true, chat: null });
+            const chat = await this.chatsService.showChat(chatID);
+            if (!chat) {
+                throw new Error("Chat não encontrado");
             }
-            const chat = { id: chatSnapshot.docs[0].id, ...chatSnapshot.docs[0].data() };
             return response.json({ success: true, chat });
         } catch (error) {
             return response.json({ success: false, msg: error.message });

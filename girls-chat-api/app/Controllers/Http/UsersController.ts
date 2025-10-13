@@ -1,6 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import db from '../../../services/ConnectFirebaseService'
-import UserService from '../../../services/UserService';
+import UserService from 'App/services/UserService';
 
 export default class UsersController {
     private userService = new UserService();
@@ -30,8 +29,7 @@ export default class UsersController {
             if (!userID) {
                 throw new Error("O ID do usuário é obrigatório")
             }
-            const usersSnapshot = await db.collection('users').where('id', '!=', userID).get();
-            const users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const users = await this.userService.getAllUsersExcept(userID);
             return response.json({ success: true, users })
         } catch (error) {
             return response.json({ success: false, msg: error.message })

@@ -1,5 +1,5 @@
-import MessagesService from "services/MessagesService"
-import ws from "../services/IoSocketServer"
+import MessagesService from "App/services/MessagesService"
+import ws from "../app/services/IoSocketServer"
 
 ws.boot()
 

@@ -1,5 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
-import MessagesService from '../../../services/MessagesService';
+import MessagesService from 'App/services/MessagesService';
 
 export default class MessagesController {
     private messagesService = new MessagesService();
