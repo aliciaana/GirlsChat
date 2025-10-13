@@ -3,6 +3,29 @@
 This project is an chat to girls conversation. Sometimes, we want talk about "womans things" but we hasn't friends to this. Eg.: inspiration to new hair, new nails and somenting else...
 To solve this problem, GirlsChat was created.
 
+📌 Diagrama de Caso de Uso
+
+O diagrama foi elaborado para representar as principais funcionalidades do aplicativo, como registrar-se, fazer login, visualizar conversas e iniciar novos chats.
+
+Atores: Usuário
+Casos de Uso Principais:
+Cadastrar-se no aplicativo
+Fazer login
+Visualizar conversas existentes
+Iniciar nova conversa
+Enviar e receber mensagens
+
+📎 Visualizar o Diagrama:
+https://app.diagrams.net/?src=about
+
+🎨 Protótipo no Figma
+
+O design das telas foi criado no Figma, representando o fluxo visual da navegação entre as páginas de Login, Cadastro, Conversas, Chat e Lista de Girls.
+
+📎 Acesse o protótipo completo no Figma:
+https://www.figma.com/proto/UdK7AQmGbgGYlo8ZiVKx3H/Untitled?node-id=0-1&t=oWSK5czZuPxtEUON-1
+
+
 ### Get started into Front-end
 
 1. Use node version
