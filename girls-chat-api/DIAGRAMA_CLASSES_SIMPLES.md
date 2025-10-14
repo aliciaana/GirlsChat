@@ -1,39 +1,81 @@
 # Diagrama de Classes Simplificado - Girls Chat API
 
+## Versão Alternativa (Compatível com todos os renderizadores)
+
+```mermaid
+flowchart TD
+    %% MODELS
+    A[User] --> B[Chat]
+    A --> C[Message] 
+    A --> D[Notification]
+    B --> C
+    B --> D
+
+    %% CONTROLLERS
+    E[UsersController] --> F[UserService]
+    G[ChatsController] --> H[ChatsService]
+    I[MessagesController] --> J[MessagesService]
+
+    %% SERVICES TO MODELS
+    F --> A
+    H --> B
+    J --> C
+    J --> H
+
+    %% UTILITIES
+    K[ValidationUtils]
+    L[IoSocketServer]
+    F --> K
+
+    %% Styling
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C fill:#e8f5e8
+    style D fill:#fff3e0
+    style E fill:#ffebee
+    style G fill:#ffebee
+    style I fill:#ffebee
+    style F fill:#f1f8e9
+    style H fill:#f1f8e9
+    style J fill:#f1f8e9
+```
+
 ## Estrutura Principal das Classes
 
 ```mermaid
 graph TB
-    subgraph "📊 MODELS (Entidades)"
-        User[👤 User<br/>- id, email, password, name<br/>- lastLogin, createdAt, updatedAt]
-        Chat[💬 Chat<br/>- id, id_host, participant<br/>- last_message, last_message_at]
-        Message[📝 Message<br/>- id, id_chat, text, seen<br/>- sentBy, sentTo, createdAt]
-        Notification[🔔 Notification<br/>- id, id_chat, id_user<br/>- text, seen, createdAt]
+    subgraph MODELS["📊 MODELS (Entidades)"]
+        User["👤 User<br/>- id, email, password, name<br/>- lastLogin, createdAt, updatedAt"]
+        Chat["💬 Chat<br/>- id, id_host, participant<br/>- last_message, last_message_at"]
+        Message["📝 Message<br/>- id, id_chat, text, seen<br/>- sentBy, sentTo, createdAt"]
+        Notification["🔔 Notification<br/>- id, id_chat, id_user<br/>- text, seen, createdAt"]
     end
 
-    subgraph "🎮 CONTROLLERS (Apresentação)"
-        UC[UsersController<br/>- login(), signUp()<br/>- index(), update()]
-        CC[ChatsController<br/>- index(), show()<br/>- create()]
-        MC[MessagesController<br/>- index(), create()<br/>- updateSeenStatus()]
+    subgraph CONTROLLERS["🎮 CONTROLLERS (Apresentação)"]
+        UC["UsersController<br/>- login(), signUp()<br/>- index(), update()"]
+        CC["ChatsController<br/>- index(), show()<br/>- create()"]
+        MC["MessagesController<br/>- index(), create()<br/>- updateSeenStatus()"]
     end
 
-    subgraph "⚙️ SERVICES (Negócios)"
-        US[UserService<br/>- getUserByEmailAndPassword()<br/>- createUser(), updateUser()<br/>- getAllUsersExcept()]
-        CS[ChatsService<br/>- getUserChats(), showChat()<br/>- createChat(), updateLastMessage()]
-        MS[MessagesService<br/>- getMessagesByChatID()<br/>- createMessage()<br/>- updateMessageSeenStatus()]
+    subgraph SERVICES["⚙️ SERVICES (Negócios)"]
+        US["UserService<br/>- getUserByEmailAndPassword()<br/>- createUser(), updateUser()<br/>- getAllUsersExcept()"]
+        CS["ChatsService<br/>- getUserChats(), showChat()<br/>- createChat(), updateLastMessage()"]
+        MS["MessagesService<br/>- getMessagesByChatID()<br/>- createMessage()<br/>- updateMessageSeenStatus()"]
     end
 
-    subgraph "🔧 UTILITIES"
-        VU[ValidationUtils<br/>- isValidEmail()]
-        IO[IoSocketServer<br/>- io: SocketIoServer<br/>- boot()]
+    subgraph UTILITIES["🔧 UTILITIES"]
+        VU["ValidationUtils<br/>- isValidEmail()"]
+        IO["IoSocketServer<br/>- io: SocketIoServer<br/>- boot()"]
     end
 
     %% Relacionamentos dos Models
-    User ---|1:N| Chat
-    Chat ---|1:N| Message
-    Chat ---|1:N| Notification
-    User ---|1:N| Message
-    User ---|1:N| Notification
+    User -->|"1:N host"| Chat
+    User -->|"1:N participant"| Chat
+    Chat -->|"1:N"| Message
+    Chat -->|"1:N"| Notification
+    User -->|"1:N sender"| Message
+    User -->|"1:N receiver"| Message
+    User -->|"1:N"| Notification
 
     %% Dependências Controller -> Service
     UC --> US
@@ -49,16 +91,16 @@ graph TB
     %% Dependências Utilities
     US --> VU
 
-    style User fill:#e1f5fe
-    style Chat fill:#f3e5f5
-    style Message fill:#e8f5e8
-    style Notification fill:#fff3e0
-    style UC fill:#ffebee
-    style CC fill:#ffebee
-    style MC fill:#ffebee
-    style US fill:#f1f8e9
-    style CS fill:#f1f8e9
-    style MS fill:#f1f8e9
+    %% Estilos
+    classDef modelStyle fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef controllerStyle fill:#ffebee,stroke:#c62828,stroke-width:2px
+    classDef serviceStyle fill:#f1f8e9,stroke:#2e7d32,stroke-width:2px
+    classDef utilityStyle fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+
+    class User,Chat,Message,Notification modelStyle
+    class UC,CC,MC controllerStyle
+    class US,CS,MS serviceStyle
+    class VU,IO utilityStyle
 ```
 
 ## Resumo dos Relacionamentos
@@ -74,18 +116,18 @@ graph TB
 
 ```mermaid
 sequenceDiagram
-    participant Client
-    participant Controller
-    participant Service
-    participant Model
-    participant Database
+    participant C as Client
+    participant Ctrl as Controller
+    participant Svc as Service
+    participant M as Model
+    participant DB as Database
 
-    Client->>Controller: HTTP Request
-    Controller->>Service: Business Logic Call
-    Service->>Model: Data Operation
-    Model->>Database: SQL Query
-    Database-->>Model: Result Set
-    Model-->>Service: Entity Object
-    Service-->>Controller: Processed Data
-    Controller-->>Client: JSON Response
+    C->>Ctrl: HTTP Request
+    Ctrl->>Svc: Business Logic Call
+    Svc->>M: Data Operation
+    M->>DB: SQL Query
+    DB-->>M: Result Set
+    M-->>Svc: Entity Object
+    Svc-->>Ctrl: Processed Data
+    Ctrl-->>C: JSON Response
 ```
