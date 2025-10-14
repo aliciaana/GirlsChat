@@ -1,6 +1,9 @@
 import { useRouter } from "expo-router";
 import React from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import * as ImagePicker from 'expo-image-picker';
+import * as Notifications from 'expo-notifications';
+import { useEffect } from 'react';
 
 type Conv = {
   id: string;
@@ -33,6 +36,21 @@ const Avatar: React.FC<{ name: string }> = ({ name }) => {
 export default function ConversationsScreen() {
   const router = useRouter();
 
+  const requestPermissions = async () => {
+    const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (mediaStatus !== 'granted') {
+      alert('Precisamos de permissão para acessar suas fotos!');
+    }
+    const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
+    if (cameraStatus !== 'granted') {
+      alert('Precisamos de permissão para acessar a câmera!');
+    }
+    const { status: notificationStatus } = await Notifications.requestPermissionsAsync();
+    if (notificationStatus !== 'granted') {
+      alert('Precisamos de permissão para enviar notificações!');
+    }
+  };
+
   const renderItem = ({ item }: { item: Conv }) => (
     <TouchableOpacity
       style={styles.card}
@@ -44,6 +62,11 @@ export default function ConversationsScreen() {
       </View>
     </TouchableOpacity>
   );
+
+  useEffect(() => {
+    requestPermissions();
+  }, []);
+
 
   return (
     <View style={styles.container}>
