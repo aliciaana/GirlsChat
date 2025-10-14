@@ -1,7 +1,5 @@
 # Diagrama de Classes Simplificado - Girls Chat API
 
-## Versão Alternativa (Compatível com todos os renderizadores)
-
 ```mermaid
 flowchart TD
     %% MODELS
