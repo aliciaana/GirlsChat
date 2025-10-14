@@ -61,12 +61,12 @@ export default class UserService {
         }
     }
 
-    public async getAllUsersExcept(userID: string) {
+    public async getAllUsersExcept(userID: string | number) {
         try {
             if (!userID) {
                 throw new Error("O ID do usuário é obrigatório")
             }
-            const users = await User.query().where('id', '!=', userID);
+            const users = await User.query().whereNot('id', userID);
             return users;
         } catch (error) {
             throw new Error("Erro ao buscar usuários: " + error.message);

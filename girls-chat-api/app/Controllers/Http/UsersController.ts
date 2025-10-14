@@ -1,8 +1,11 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import UserService from 'App/services/UserService';
+import UserService from '../../services/UserService';
 
 export default class UsersController {
-    private userService = new UserService();
+    private userService: UserService;
+    constructor() {
+        this.userService = new UserService();
+    }
     public async login({ request, response }: HttpContextContract) {
         try {
             const { email, password } = request.body()
@@ -36,13 +39,16 @@ export default class UsersController {
         }
     }
 
-    public async update({ request, response }: HttpContextContract) {
+    public async update({ request, response, params }: HttpContextContract) {
         try {
-            const { userID, UF, city, bio } = request.body();
-            const updatedData: { UF?: string; city?: string; bio?: string; } = {};
+            const { UF, city, bio, name, email } = request.body();
+            const userID = params.id;
+            const updatedData: { UF?: string; city?: string; bio?: string; name?: string; email?: string } = {};
             if (UF) updatedData.UF = UF;
             if (city) updatedData.city = city;
             if (bio) updatedData.bio = bio;
+            if (name) updatedData.name = name;
+            if (email) updatedData.email = email;
             const user = await this.userService.updateUser(userID, updatedData);
             return response.json({ success: true, user });
         } catch (error) {
