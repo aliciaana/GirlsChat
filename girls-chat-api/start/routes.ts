@@ -23,24 +23,19 @@ import ChatsController from 'App/Controllers/Http/ChatsController'
 import MessagesController from 'App/Controllers/Http/MessagesController'
 import UsersController from 'App/Controllers/Http/UsersController'
 
-
 const usersController = new UsersController()
 const chatsController = new ChatsController()
 const messagesController = new MessagesController()
 
-// Route.get('/users', usersController.index)
-
+Route.post('/criar-usuario', usersController.signUp)
 Route.post('/login', usersController.login)
-
-Route.post('/sign-up', usersController.signUp)
+Route.get('/usuarios', usersController.index)
+Route.put('/atualizar-usuario', usersController.update)
 
 Route.get('/chats', chatsController.index)
+Route.get('/chat', chatsController.show)
+Route.post('/criar-chat', chatsController.create)
 
-// Route.get('/chat', chatsController.show)
-
-// Route.post('/chat', chatsController.create)
-
-Route.get('/messages', messagesController.index)
-
-
-
+Route.get('/mensagens', messagesController.index)
+Route.post('/criar-mensagem', messagesController.create)
+Route.put('/atualizar-status-visto', messagesController.updateSeenStatus)
