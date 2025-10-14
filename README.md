@@ -16,7 +16,7 @@ Iniciar nova conversa
 Enviar e receber mensagens
 
 📎 Visualizar o Diagrama:
-https://drive.google.com/file/d/1--PJFi0MFQvwCvpMUdt28Pl_7Rqi-j0E/view?usp=sharing
+https://drive.google.com/file/d/1kchxOfgEUsZQlWXqFGaWkvVFGEDSSQ6z/view?usp=sharing
 
 
 
