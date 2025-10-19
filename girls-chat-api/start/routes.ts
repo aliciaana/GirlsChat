@@ -23,6 +23,18 @@ import ChatsController from 'App/Controllers/Http/ChatsController'
 import MessagesController from 'App/Controllers/Http/MessagesController'
 import UsersController from 'App/Controllers/Http/UsersController'
 
+// Rota básica para testes
+Route.get('/', async () => {
+  return { hello: 'world' }
+})
+
+// Rota de debug para verificar usuários
+Route.get('/debug/users', async () => {
+  const User = (await import('App/Models/User')).default;
+  const users = await User.query().select('id', 'name', 'email').limit(10);
+  return { users, count: users.length };
+})
+
 const usersController = new UsersController()
 const chatsController = new ChatsController()
 const messagesController = new MessagesController()
@@ -33,9 +45,9 @@ Route.get('/usuarios', (ctx) => usersController.index(ctx))
 Route.put('/atualizar-usuario/:id', (ctx) => usersController.update(ctx))
 
 Route.get('/chats', (ctx) => chatsController.index(ctx))
-Route.get('/chat', (ctx) => chatsController.show(ctx))
+Route.get('/chat/:id', (ctx) => chatsController.show(ctx))
 Route.post('/criar-chat', (ctx) => chatsController.create(ctx))
 
 Route.get('/mensagens', (ctx) => messagesController.index(ctx))
 Route.post('/criar-mensagem', (ctx) => messagesController.create(ctx))
-Route.put('/atualizar-status-visto', (ctx) => messagesController.updateSeenStatus(ctx))
+Route.put('/chat/:id/atualizar-status-visto', (ctx) => messagesController.updateSeenStatus(ctx))

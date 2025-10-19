@@ -15,25 +15,23 @@ export default class MessagesController {
 
     public async create({ request, response }: HttpContextContract) {
         try {
-            const { chatID, sentByID, sentToID, text } = request.body();
+            const { chatID, sentBy, sentTo, text } = request.body();
             const newMessage = {
-                sentBy: sentByID,
-                sentTo: sentToID,
+                sentBy,
+                sentTo,
                 text,
-                createdAt: new Date(),
                 seen: false
             };
             const messageRef = await this.messagesService.createMessage(chatID, newMessage);
-            const message = { id: messageRef.id, ...newMessage };
-            return response.json({ success: true, message });
+            return response.json({ success: true, data: messageRef });
         } catch (e) {
             return response.json({ success: false, msg: e.message });
         }
     }
 
-    public async updateSeenStatus({ request, response }: HttpContextContract) {
+    public async updateSeenStatus({ response, params }: HttpContextContract) {
         try {
-            const { chatID } = request.body();
+            const chatID = params.id;
             await this.messagesService.updateMessageSeenStatus(chatID);
             return response.json({ success: true, msg: "Status atualizado com sucesso" });
         } catch (e) {

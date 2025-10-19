@@ -1,5 +1,6 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import UserService from '../../services/UserService';
+import { md5 } from 'js-md5';
 
 export default class UsersController {
     private userService: UserService;
@@ -41,14 +42,15 @@ export default class UsersController {
 
     public async update({ request, response, params }: HttpContextContract) {
         try {
-            const { UF, city, bio, name, email } = request.body();
+            const { UF, city, bio, name, email, password } = request.body();
             const userID = params.id;
-            const updatedData: { UF?: string; city?: string; bio?: string; name?: string; email?: string } = {};
+            const updatedData: { UF?: string; city?: string; bio?: string; name?: string; email?: string; password?: string } = {};
             if (UF) updatedData.UF = UF;
             if (city) updatedData.city = city;
             if (bio) updatedData.bio = bio;
             if (name) updatedData.name = name;
             if (email) updatedData.email = email;
+            if (password) updatedData.password = md5(password);
             const user = await this.userService.updateUser(userID, updatedData);
             return response.json({ success: true, user });
         } catch (error) {

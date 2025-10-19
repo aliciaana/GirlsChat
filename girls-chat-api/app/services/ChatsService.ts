@@ -1,4 +1,5 @@
 import Chat from "App/Models/Chat";
+import User from "App/Models/User";
 import { DateTime } from "luxon";
 
 export default class ChatsService {
@@ -57,11 +58,24 @@ export default class ChatsService {
                 throw new Error("Os IDs do host e participante são obrigatórios")
             }
 
-            const existingChat = await this.existsChatBetweenUsers(host, participant);
-            
+            // Validar se os usuários existem
+            const hostUser = await User.find(parseInt(host));
+            const participantUser = await User.find(parseInt(participant));
+
+            if (!hostUser) {
+                throw new Error(`Usuário host com ID ${host} não encontrado`);
+            }
+
+            if (!participantUser) {
+                throw new Error(`Usuário participante com ID ${participant} não encontrado`);
+            }
+
+            const existingChat = await this.chatBetweenUsers(host, participant);
+
             if (existingChat) {
                 throw new Error("Chat já existe entre esses usuários");
             }
+            
             const newChat = await Chat.create({
                 id_host: parseInt(host),
                 participant: parseInt(participant),
@@ -74,7 +88,7 @@ export default class ChatsService {
         }
     }
 
-    public async existsChatBetweenUsers(userA: string, userB: string) {
+    public async chatBetweenUsers(userA: string, userB: string) {
         try {
             if (!userA || !userB) {
                 throw new Error("Os IDs dos usuários são obrigatórios")
@@ -89,13 +103,13 @@ export default class ChatsService {
                 })
                 .first();
 
-            return !!existingChat;
+            return existingChat;
         } catch (error) {
             throw new Error("Erro ao verificar existência do chat: " + error.message);
         }
     }
 
-    public async updateLastMessage(chatID: string, messageText: string) {
+    public async updateLastMessage(chatID: string | number, messageText: string) {
         try {
             if (!chatID || !messageText) {
                 throw new Error("O ID do chat e o texto da mensagem são obrigatórios")

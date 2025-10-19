@@ -5,7 +5,7 @@ export default class ChatsController {
     private chatsService = new ChatsService();
     public async index({ request, response }: HttpContextContract) {
         try {
-            const { userID } = request.body();
+            const userID = request.input('userID');
             const uniqueChats = await this.chatsService.getUserChats(userID);
             return response.json({ success: true, chats: uniqueChats });
         } catch (error) {
@@ -13,9 +13,9 @@ export default class ChatsController {
         }
     }
 
-    public async show({ request, response }: HttpContextContract) {
+    public async show({ response, params }: HttpContextContract) {
         try {
-            const { chatID } = request.qs();
+            const chatID = params.id;
             const chat = await this.chatsService.showChat(chatID);
             if (!chat) {
                 throw new Error("Chat não encontrado");
@@ -28,8 +28,8 @@ export default class ChatsController {
 
     public async create({ request, response }: HttpContextContract) {
         try {
-            const { host, participant } = request.body();
-            const chat = await this.chatsService.createChat(host, participant);
+            const { hostID, participantID } = request.body();
+            const chat = await this.chatsService.createChat(hostID, participantID);
             return response.json({ success: true, chat });
         } catch (error) {
             return response.json({ success: false, msg: error.message });

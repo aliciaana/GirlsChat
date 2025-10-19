@@ -19,20 +19,20 @@ export default class MessagesService {
             if (!newMessage.sentBy || !newMessage.sentTo || !newMessage.text) {
                 throw new Error("Os campos sentBy, sentTo e text são obrigatórios");
             }
-            if (!chatID) {
-                const chatsService = new ChatsService();
+            const chatsService = new ChatsService();
+            const existingChat = await chatsService.chatBetweenUsers(newMessage.sentBy, newMessage.sentTo);
+            if (!existingChat) {
                 const chat = await chatsService.createChat(newMessage.sentBy, newMessage.sentTo);
                 chatID = chat.id;
             }
             const messageRef = await Message.create({
-                id_chat: Number(chatID),
+                id_chat: Number(chatID) || existingChat?.id,
                 sentBy: Number(newMessage.sentBy),
                 sentTo: Number(newMessage.sentTo),
                 text: newMessage.text,
                 seen: false,
             });
-            const chatsService = new ChatsService();
-            await chatsService.updateLastMessage(chatID.toString(), newMessage.text);
+            await chatsService.updateLastMessage(chatID || existingChat?.id || 0, newMessage.text);
             return messageRef;
         } catch (error) {
             throw new Error("Erro ao criar mensagem: " + error.message);
