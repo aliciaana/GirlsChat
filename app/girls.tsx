@@ -10,7 +10,7 @@ export default function GirlsScreen() {
   const toast = useToast()
   const { userLogged } = useContext(UserContext)
 
-  const [girls, setGirls] = React.useState<{ id: string; name: string }[]>([]);
+  const [girls, setGirls] = React.useState<{ id: string; name: string; photo: string }[]>([]);
 
   const handleStartChat = (girl: { id: string; name: string }) => {
     router.push(`/chat?id=${girl.id}&name=${encodeURIComponent(girl.name)}`);
@@ -20,7 +20,7 @@ export default function GirlsScreen() {
     const response = await api().get("/usuarios", { params: { userID: userLogged.getId() } })
     if (response.data.success) {
       const { users } = response.data;
-      const girlsData = users.map((user: any) => { return { id: user.id, name: user.name }})
+      const girlsData = users.map((user: any) => { return { id: user.id, name: user.name, photo: user.photo }})
       return setGirls(girlsData)
     }
     return toast.show("Erro ao listar as garotas disponíveis,. " + response.data.msg)
