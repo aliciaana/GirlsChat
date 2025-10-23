@@ -1,12 +1,39 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
+import api from "./connection/api";
+import UserModel from "./models/User";
+import UserRepository from "./repository/User";
+import { useToast } from "react-native-toast-notifications";
 
 export default function RegisterScreen() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const toast = useToast();
+
+  async function handleRegister() {
+    const response = await api().post("criar-usuario", {
+      name,
+      email,
+      password,
+    });
+    
+    if (response.data.success) {
+      const userResponse = response.data.user;
+      const user = new UserModel();
+      user.setId(userResponse.id);
+      user.setName(userResponse.name);
+      user.setEmail(userResponse.email);
+      await new UserRepository().updateUser(user);
+      toast.show("Usuário criado com sucesso!", { type: "success" });
+      router.push("/");
+    } else {
+      toast.show("Erro ao criar usuário. " + response.data.msg, { type: "danger" });
+      console.error("Error creating user:", response.data.msg);
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -36,7 +63,7 @@ export default function RegisterScreen() {
         onChangeText={setPassword}
       />
 
-      <TouchableOpacity style={styles.buttonPink} onPress={() => router.push("/")}>
+      <TouchableOpacity style={styles.buttonPink} onPress={handleRegister}>
         <Text style={styles.buttonText}>Registrar</Text>
       </TouchableOpacity>
 
