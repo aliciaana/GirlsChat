@@ -1,9 +1,14 @@
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { UserContext } from "./contextAPI/UserContext";
+import api from "./connection/api";
+import { useToast } from "react-native-toast-notifications";
 
 export default function GirlsScreen() {
   const router = useRouter();
+  const toast = useToast()
+  const { userLogged } = useContext(UserContext)
 
   const [girls, setGirls] = React.useState<{ id: string; name: string }[]>([]);
 
@@ -11,7 +16,19 @@ export default function GirlsScreen() {
     router.push(`/chat?id=${girl.id}&name=${encodeURIComponent(girl.name)}`);
   };
 
-  
+  async function loadGirls() {
+    const response = await api().get("/usuarios", { params: { userID: userLogged.getId() } })
+    if (response.data.success) {
+      const { users } = response.data;
+      const girlsData = users.map((user: any) => { return { id: user.id, name: user.name }})
+      return setGirls(girlsData)
+    }
+    return toast.show("Erro ao listar as garotas disponíveis,. " + response.data.msg)
+  }
+
+  useEffect(() => {
+    loadGirls()
+  })
 
   return (
     <View style={styles.container}>
