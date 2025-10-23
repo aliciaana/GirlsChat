@@ -2,20 +2,16 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-const girls = [
-  { id: "1", name: "Ana Clara" },
-  { id: "2", name: "Beatriz Souza" },
-  { id: "3", name: "Carla Mendes" },
-  { id: "4", name: "Daniela Lima" },
-  { id: "5", name: "Fernanda Alves" }
-];
-
 export default function GirlsScreen() {
   const router = useRouter();
+
+  const [girls, setGirls] = React.useState<{ id: string; name: string }[]>([]);
 
   const handleStartChat = (girl: { id: string; name: string }) => {
     router.push(`/chat?id=${girl.id}&name=${encodeURIComponent(girl.name)}`);
   };
+
+  
 
   return (
     <View style={styles.container}>

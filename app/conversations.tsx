@@ -1,21 +1,40 @@
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useContext, useState } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
 import * as Notifications from 'expo-notifications';
 import { useEffect } from 'react';
+import api from "./connection/api";
+import UserRepository from "./repository/User";
+import { UserContext } from "./contextAPI/UserContext";
 
 type Conv = {
-  id: string;
-  name: string;
+  id: number;
+  id_host: number;
+  last_message: string | null;
+  last_message_at: string | null;
+  participant: number;
+  created_at: string;
+  updated_at: string;
+  host: {
+    id: number;
+    email: string;
+    password: string;
+    name: string;
+    last_login: string | null;
+    created_at: string;
+    updated_at: string;
+  };
+  participantUser: {
+    id: number;
+    email: string;
+    name: string;
+    last_login: string | null;
+    created_at: string;
+    updated_at: string;
+  };
+  messages: any[]
 };
-
-const DATA: Conv[] = [
-  { id: "1", name: "Maria Silva" },
-  { id: "2", name: "Mariana Melo" },
-  { id: "3", name: "Ana Clara" },
-  { id: "4", name: "Beatriz" },
-];
 
 const Avatar: React.FC<{ name: string }> = ({ name }) => {
   const initials = name
@@ -35,6 +54,8 @@ const Avatar: React.FC<{ name: string }> = ({ name }) => {
 
 export default function ConversationsScreen() {
   const router = useRouter();
+  const [DATA, setDATA] = useState<Conv[]>([]);
+  const { userLogged } = useContext(UserContext)
 
   const requestPermissions = async () => {
     const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -54,17 +75,31 @@ export default function ConversationsScreen() {
   const renderItem = ({ item }: { item: Conv }) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => router.push(`/chat?id=${item.id}&name=${encodeURIComponent(item.name)}`)}
+      onPress={() => router.push(`/chat?id=${item.id}}`)}
     >
-      <Avatar name={item.name} />
+      <Avatar name={item.host.id !== Number(userLogged.getId()) ? item.host.name : item.participantUser.name} />
       <View style={styles.cardContent}>
-        <Text style={styles.name}>{item.name}</Text>
+        <Text style={styles.name}>{item.host.id !== Number(userLogged.getId()) ? item.host.name : item.participantUser.name}</Text>
       </View>
     </TouchableOpacity>
   );
 
+  async function loadConversations() {
+    try {
+      const loggedUser = await new UserRepository().getUser();
+      const response = await api().get(`/chats`, { params: { userID: loggedUser?.getId() } });
+      if (response.data.success) {
+        return setDATA(response.data.chats);
+      }
+      return setDATA([])
+    } catch (error) {
+      console.error("Error loading conversations:", error);
+    }
+  }
+
   useEffect(() => {
     requestPermissions();
+    loadConversations()
   }, []);
 
 
@@ -74,7 +109,7 @@ export default function ConversationsScreen() {
 
       <FlatList
         data={DATA}
-        keyExtractor={(i) => i.id}
+        keyExtractor={(i, index) => i.id.toString()}
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 120 }}
       />
