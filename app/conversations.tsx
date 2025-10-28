@@ -75,7 +75,7 @@ export default function ConversationsScreen() {
   const renderItem = ({ item }: { item: Conv }) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => router.push(`/chat?id=${item.id}}`)}
+      onPress={() => router.push(`/chat?id=${item.id}&otherID=${item.host.id !== Number(userLogged.getId()) ? item.host.id : item.participantUser.id}`)}
     >
       <Avatar name={item.host.id !== Number(userLogged.getId()) ? item.host.name : item.participantUser.name} />
       <View style={styles.cardContent}>

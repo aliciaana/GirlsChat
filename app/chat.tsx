@@ -1,27 +1,126 @@
 import { useLocalSearchParams } from "expo-router";
-import React, { useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import api from "./connection/api";
+import UserModel from "./models/User";
+import { useToast } from "react-native-toast-notifications";
+import { UserContext } from "./contextAPI/UserContext";
+import io, { Socket } from 'socket.io-client';
 
 type Message = { id: string; text: string; sender: "me" | "other" };
 
+interface Chat {
+  id: number,
+  id_host: number,
+  last_message: string | null,
+  last_message_at: string | null,
+  participant: number,
+  created_at: string,
+  updated_at: string,
+  messages: MessageInterface[]
+}
+
+interface MessageInterface {
+  id: number,
+  id_chat: number,
+  text: string,
+  seen: boolean,
+  sent_by: number,
+  sent_to: number,
+  created_at: string,
+  updated_at: string,
+  sender: UserModel,
+  receiver: UserModel
+}
+
 export default function ChatScreen() {
-  const { name } = useLocalSearchParams<{ id?: string; name?: string }>();
-  const [messages, setMessages] = useState<Message[]>([
-    { id: "1", text: "Oi, tudo bem?", sender: "other" },
-    { id: "2", text: "Oi! Tudo ótimo e você?", sender: "me" },
-    { id: "3", text: "Tô bem também 😄", sender: "other" }
-  ]);
+  const { id, otherID } = useLocalSearchParams<{ id: string, otherID: string }>();
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [chat, setChat] = useState<Chat | null>(null);
   const [input, setInput] = useState("");
+  const [socket, setSocket] = useState<SocketIOClient.Socket | null>(null);
+  const [otherUser, setOtherUser] = useState<UserModel | null>(null);
   const listRef = useRef<FlatList>(null);
+  const toast = useToast()
+  const { userLogged } = useContext(UserContext)
 
   const sendMessage = () => {
-    if (input.trim().length === 0) return;
-    const newMsg: Message = { id: Date.now().toString(), text: input.trim(), sender: "me" };
-    setMessages(prev => [...prev, newMsg]);
-    setInput("");
-    // scroll down
-    setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100);
+    if (input.trim() && socket && userLogged.getId()) {
+      socket.emit('send-message', { sentByID: userLogged.getId(), sentToID: otherID, text: input });
+      setInput('');
+    }
   };
+
+  async function loadChat() {
+    const decodedId = decodeURIComponent(id || '');
+    if (decodedId === 'null') {
+      return;
+    }
+    const response = await api().get("/chat/" + decodedId);
+    if (response.data.success) {
+      return setChat(response.data.chat)
+    }
+    toast.show("Houve um erro no carregamento das mensagens. " + response.data.msg);
+  }
+
+  async function loadOtherUser() {
+    const response = await api().get("/usuario/" + otherID);
+    if (response.data.success) {
+      const userData = response.data.user;
+      const user = new UserModel();
+      user.setId(userData.id);
+      user.setName(userData.name);
+      user.setEmail(userData.email);
+      setOtherUser(user);
+    } else {
+      toast.show("Houve um erro ao carregar o usuário. " + response.data.msg);
+    }
+  }
+
+  function loadMessages(chat: Chat | null) {
+    if (!chat) return;
+    const messagesData: Message[] = chat.messages.map((message) => {
+      return {
+        id: message.id.toString(),
+        text: message.text,
+        sender: message.sent_by == Number(userLogged.getId()) ? "me" : "other"
+      }
+    })
+    setMessages(messagesData)
+  }
+
+  useEffect(() => {
+    loadOtherUser();
+  }, [otherID]);
+
+  useEffect(() => {
+    listRef.current?.scrollToEnd({ animated: true });
+  }, [messages]);
+
+
+  useEffect(()=>{
+    loadChat()
+  }, [])
+
+  useEffect(() => {
+    loadMessages(chat)
+  }, [chat])
+
+  useEffect(() => {
+    const newSocket = io('http://localhost:3333');
+
+    newSocket.on(`new-message-${chat?.id}`, (msg: { id: string, text: string, sentBy: number }) => {
+      if (msg.sentBy === Number(otherID)) {
+        setMessages((prev) => [...prev, { id: msg.id, text: msg.text, sender: "other" }]);
+      }
+    });
+
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.close();
+    };
+  }, []);
 
   return (
     <KeyboardAvoidingView
@@ -30,7 +129,7 @@ export default function ChatScreen() {
       keyboardVerticalOffset={90}
     >
       <View style={styles.header}>
-        <Text style={styles.headerText}>{name ?? "Girl"}</Text>
+        <Text style={styles.headerText}>{otherUser?.getName() ?? "Girl"}</Text>
       </View>
 
       <FlatList

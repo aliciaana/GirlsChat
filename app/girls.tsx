@@ -13,7 +13,7 @@ export default function GirlsScreen() {
   const [girls, setGirls] = React.useState<{ id: string; name: string; photo: string }[]>([]);
 
   const handleStartChat = (girl: { id: string; name: string }) => {
-    router.push(`/chat?id=${girl.id}&name=${encodeURIComponent(girl.name)}`);
+    router.push(`/chat?id=null&otherID=${girl.id}`);
   };
 
   async function loadGirls() {
