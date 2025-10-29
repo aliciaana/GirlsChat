@@ -80,6 +80,9 @@ export default function ConversationsScreen() {
       <Avatar name={item.host.id !== Number(userLogged.getId()) ? item.host.name : item.participantUser.name} />
       <View style={styles.cardContent}>
         <Text style={styles.name}>{item.host.id !== Number(userLogged.getId()) ? item.host.name : item.participantUser.name}</Text>
+        <View style={styles.notRead}>
+          <Text style={styles.notReadText}>{item.messages.length}</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -163,5 +166,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     elevation: 6
   },
-  fabText: { fontSize: 34, color: "#fff", lineHeight: 36 }
+  fabText: { fontSize: 34, color: "#fff", lineHeight: 36 },
+  notRead: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: "#d63384",
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 8
+  },
+  notReadText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "700"
+  }
 });

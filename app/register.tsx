@@ -26,7 +26,6 @@ export default function RegisterScreen() {
       user.setId(userResponse.id);
       user.setName(userResponse.name);
       user.setEmail(userResponse.email);
-      await new UserRepository().updateUser(user);
       toast.show("Usuário criado com sucesso!", { type: "success" });
       router.push("/");
     } else {

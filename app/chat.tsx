@@ -89,6 +89,16 @@ export default function ChatScreen() {
     setMessages(messagesData)
   }
 
+  async function markMessagesAsSeen() {
+    if (!chat) return;
+    const response = await api().post(`/chat/${chat.id}/atualizar-status-visto`, {
+      userID: userLogged.getId()
+    });
+    if (!response.data.success) {
+      toast.show("Houve um erro ao marcar as mensagens como vistas. " + response.data.msg);
+    }
+  }
+
   useEffect(() => {
     loadOtherUser();
   }, [otherID]);
@@ -100,6 +110,7 @@ export default function ChatScreen() {
 
   useEffect(()=>{
     loadChat()
+    markMessagesAsSeen()
   }, [])
 
   useEffect(() => {
