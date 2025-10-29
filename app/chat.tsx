@@ -1,9 +1,9 @@
 import { useLocalSearchParams } from "expo-router";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import UserModel from "./models/User";
 import { useToast } from "react-native-toast-notifications";
-import { UserContext } from "./contextAPI/UserContext";
+import { useAuthenticatedUser } from "./contextAPI/UserContext";
 import io, { Socket } from 'socket.io-client';
 import { api, apiURL } from "./connection/api";
 
@@ -42,7 +42,7 @@ export default function ChatScreen() {
   const [otherUser, setOtherUser] = useState<UserModel | null>(null);
   const listRef = useRef<FlatList>(null);
   const toast = useToast()
-  const { userLogged } = useContext(UserContext)
+  const userLogged = useAuthenticatedUser(); // Garantido que não é null
 
   const sendMessage = () => {
     if (input.trim() && socket && userLogged.getId()) {
@@ -111,7 +111,7 @@ export default function ChatScreen() {
   useEffect(()=>{
     loadChat()
     markMessagesAsSeen()
-  }, [])
+  }, [userLogged])
 
   useEffect(() => {
     loadMessages(chat)

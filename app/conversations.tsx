@@ -1,11 +1,11 @@
 import { useRouter } from "expo-router";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
 import * as Notifications from 'expo-notifications';
 import { useEffect } from 'react';
 import UserRepository from "./repository/User";
-import { UserContext } from "./contextAPI/UserContext";
+import { useAuthenticatedUser } from "./contextAPI/UserContext";
 import { api } from "./connection/api";
 
 type Conv = {
@@ -55,7 +55,7 @@ const Avatar: React.FC<{ name: string }> = ({ name }) => {
 export default function ConversationsScreen() {
   const router = useRouter();
   const [DATA, setDATA] = useState<Conv[]>([]);
-  const { userLogged } = useContext(UserContext)
+  const userLogged = useAuthenticatedUser(); // Garantido que não é null
 
   const requestPermissions = async () => {
     const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -103,7 +103,7 @@ export default function ConversationsScreen() {
   useEffect(() => {
     requestPermissions();
     loadConversations()
-  }, []);
+  }, [userLogged]);
 
 
   return (

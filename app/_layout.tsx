@@ -6,7 +6,7 @@ import 'react-native-reanimated';
 import { ToastProvider } from 'react-native-toast-notifications';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { UserProvider } from './contextAPI/UserContext';
+import { UserProvider, AuthGuard } from './contextAPI/UserContext';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -17,18 +17,19 @@ export default function RootLayout() {
   if (!loaded) {
     return null;
   }
-
   return (
     <UserProvider>
-      <ToastProvider>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-          <StatusBar style="auto" />
-        </ThemeProvider>
-      </ToastProvider>
+      <AuthGuard>
+        <ToastProvider>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+            <StatusBar style="auto" />
+          </ThemeProvider>
+        </ToastProvider>
+      </AuthGuard>
     </UserProvider>
   );
 }

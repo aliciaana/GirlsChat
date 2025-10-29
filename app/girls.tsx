@@ -1,14 +1,14 @@
 import { useRouter } from "expo-router";
-import React, { useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { UserContext } from "./contextAPI/UserContext";
+import { useAuthenticatedUser } from "./contextAPI/UserContext";
 import { useToast } from "react-native-toast-notifications";
 import { api } from "./connection/api";
 
 export default function GirlsScreen() {
   const router = useRouter();
   const toast = useToast()
-  const { userLogged } = useContext(UserContext)
+  const userLogged = useAuthenticatedUser(); // Garantido que não é null
 
   const [girls, setGirls] = React.useState<{ id: string; name: string; photo: string }[]>([]);
 
@@ -28,7 +28,7 @@ export default function GirlsScreen() {
 
   useEffect(() => {
     loadGirls()
-  })
+  }, [userLogged])
 
   return (
     <View style={styles.container}>
