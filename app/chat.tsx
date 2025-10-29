@@ -58,7 +58,9 @@ export default function ChatScreen() {
     }
     const response = await api().get("/chat/" + decodedId);
     if (response.data.success) {
-      return setChat(response.data.chat)
+      const loadedChat = response.data.chat;
+      markMessagesAsSeen(loadedChat)
+      return setChat(loadedChat)
     }
     toast.show("Houve um erro no carregamento das mensagens. " + response.data.msg);
   }
@@ -89,9 +91,9 @@ export default function ChatScreen() {
     setMessages(messagesData)
   }
 
-  async function markMessagesAsSeen() {
-    if (!chat) return;
-    const response = await api().post(`/chat/${chat.id}/atualizar-status-visto`, {
+  async function markMessagesAsSeen(loadedChat: Chat) {
+    if (!loadedChat) return;
+    const response = await api().put(`/chat/${loadedChat.id}/atualizar-status-visto`, {
       userID: userLogged.getId()
     });
     if (!response.data.success) {
@@ -110,7 +112,6 @@ export default function ChatScreen() {
 
   useEffect(()=>{
     loadChat()
-    markMessagesAsSeen()
   }, [userLogged])
 
   useEffect(() => {

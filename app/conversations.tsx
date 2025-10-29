@@ -80,9 +80,11 @@ export default function ConversationsScreen() {
       <Avatar name={item.host.id !== Number(userLogged.getId()) ? item.host.name : item.participantUser.name} />
       <View style={styles.cardContent}>
         <Text style={styles.name}>{item.host.id !== Number(userLogged.getId()) ? item.host.name : item.participantUser.name}</Text>
-        <View style={styles.notRead}>
-          <Text style={styles.notReadText}>{item.messages.length}</Text>
-        </View>
+        {item.messages.length ? (
+          <View style={styles.notRead}>
+            <Text style={styles.notReadText}>{item.messages.length}</Text>
+          </View>
+        ) : null}
       </View>
     </TouchableOpacity>
   );
