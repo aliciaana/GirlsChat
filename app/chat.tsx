@@ -1,11 +1,11 @@
 import { useLocalSearchParams } from "expo-router";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import api from "./connection/api";
 import UserModel from "./models/User";
 import { useToast } from "react-native-toast-notifications";
 import { UserContext } from "./contextAPI/UserContext";
 import io, { Socket } from 'socket.io-client';
+import { api, apiURL } from "./connection/api";
 
 type Message = { id: string; text: string; sender: "me" | "other" };
 
@@ -104,15 +104,13 @@ export default function ChatScreen() {
 
   useEffect(() => {
     loadMessages(chat)
-  }, [chat])
+  }, [chat]);
 
   useEffect(() => {
-    const newSocket = io('http://localhost:3333');
+    const newSocket = io(apiURL);
 
-    newSocket.on(`new-message-${chat?.id}`, (msg: { id: string, text: string, sentBy: number }) => {
-      if (msg.sentBy === Number(otherID)) {
-        setMessages((prev) => [...prev, { id: msg.id, text: msg.text, sender: "other" }]);
-      }
+    newSocket.on(`receive-message-${userLogged.getId()}`, (msg: { id: string, text: string, sentBy: number }) => {
+      setMessages((prev) => [...prev, { id: msg.id, text: msg.text, sender: msg.sentBy === Number(otherID) ? "other" : "me" }]);
     });
 
     setSocket(newSocket);

@@ -4,9 +4,9 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native
 import * as ImagePicker from 'expo-image-picker';
 import * as Notifications from 'expo-notifications';
 import { useEffect } from 'react';
-import api from "./connection/api";
 import UserRepository from "./repository/User";
 import { UserContext } from "./contextAPI/UserContext";
+import { api } from "./connection/api";
 
 type Conv = {
   id: number;

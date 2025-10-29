@@ -2,8 +2,8 @@ import { useRouter } from "expo-router";
 import React, { useContext, useEffect } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { UserContext } from "./contextAPI/UserContext";
-import api from "./connection/api";
 import { useToast } from "react-native-toast-notifications";
+import { api } from "./connection/api";
 
 export default function GirlsScreen() {
   const router = useRouter();

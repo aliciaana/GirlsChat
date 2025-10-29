@@ -1,11 +1,11 @@
 import { useRouter } from "expo-router";
 import { useContext, useState } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import api from "../connection/api";
 import UserModel from "../models/User";
 import UserRepository from "../repository/User";
 import { useToast } from "react-native-toast-notifications";
 import { UserContext } from "../contextAPI/UserContext";
+import { api } from "../connection/api";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -26,7 +26,6 @@ export default function LoginScreen() {
       user.setId(userResponse.id);
       user.setName(userResponse.name);
       user.setEmail(userResponse.email);
-      setUserLogged(user);
       await new UserRepository().updateUser(user);
       toast.show("Usuário logado com sucesso!", { type: "success" });
       router.push("/conversations");

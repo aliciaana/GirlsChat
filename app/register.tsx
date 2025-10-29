@@ -1,10 +1,10 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
-import api from "./connection/api";
 import UserModel from "./models/User";
 import UserRepository from "./repository/User";
 import { useToast } from "react-native-toast-notifications";
+import { api } from "./connection/api";
 
 export default function RegisterScreen() {
   const router = useRouter();
