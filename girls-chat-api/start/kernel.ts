@@ -41,4 +41,5 @@ Server.middleware.register([
 |
 */
 Server.middleware.registerNamed({
+  expoPushNotification: () => import('App/Middleware/ExpoPushNotification')
 })

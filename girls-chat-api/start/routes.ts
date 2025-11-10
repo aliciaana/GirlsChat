@@ -45,10 +45,13 @@ Route.get('/usuarios', (ctx) => usersController.index(ctx))
 Route.put('/atualizar-usuario/:id', (ctx) => usersController.update(ctx))
 Route.get('/usuario/:id', (ctx) => usersController.findById(ctx))
 
-Route.get('/chats', (ctx) => chatsController.index(ctx))
 Route.get('/chat/:id', (ctx) => chatsController.show(ctx))
 Route.post('/criar-chat', (ctx) => chatsController.create(ctx))
 
 Route.get('/mensagens', (ctx) => messagesController.index(ctx))
 Route.post('/criar-mensagem', (ctx) => messagesController.create(ctx))
 Route.put('/chat/:id/atualizar-status-visto', (ctx) => messagesController.updateSeenStatus(ctx))
+
+Route.group(() => {
+  Route.get('/chats', (ctx) => chatsController.index(ctx))
+}).middleware('expoPushNotification')
