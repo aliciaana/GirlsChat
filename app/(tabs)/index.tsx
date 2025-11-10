@@ -3,7 +3,7 @@ import { useContext, useState } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import UserModel from "../models/User";
 import UserRepository from "../repository/User";
-import { useToast } from "react-native-toast-notifications";
+import Toast from "react-native-toast-message";
 import { UserContext } from "../contextAPI/UserContext";
 import { api } from "../connection/api";
 
@@ -11,7 +11,6 @@ export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const toast = useToast();
 
   async function handleLogin() {
     const response = await api().post("login", {
@@ -26,10 +25,13 @@ export default function LoginScreen() {
       user.setName(userResponse.name);
       user.setEmail(userResponse.email);
       await new UserRepository().updateUser(user);
-      toast.show("Usuário logado com sucesso!", { type: "success" });
       router.push("/conversations");
     } else {
-      toast.show("Erro ao logar usuário. " + response.data.msg, { type: "danger" });
+      Toast.show({
+        type: "danger",
+        text1: "Erro ao logar usuário.",
+        text2: response.data.msg,
+      });
       console.error("Error logging in user:", response.data.msg);
     }
   }

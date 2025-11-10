@@ -5,8 +5,9 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Notifications from 'expo-notifications';
 import { useEffect } from 'react';
 import UserRepository from "./repository/User";
-import { useAuthenticatedUser } from "./contextAPI/UserContext";
 import { api } from "./connection/api";
+import { UserContext } from "./contextAPI/UserContext";
+import { usePushNotifications } from "./providers/usePushNotifications";
 
 type Conv = {
   id: number;
@@ -55,7 +56,8 @@ const Avatar: React.FC<{ name: string }> = ({ name }) => {
 export default function ConversationsScreen() {
   const router = useRouter();
   const [DATA, setDATA] = useState<Conv[]>([]);
-  const userLogged = useAuthenticatedUser(); // Garantido que não é null
+  const { userLogged } = React.useContext(UserContext);
+  const { expoPushToken } = usePushNotifications();
 
   const requestPermissions = async () => {
     const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -92,7 +94,10 @@ export default function ConversationsScreen() {
   async function loadConversations() {
     try {
       const loggedUser = await new UserRepository().getUser();
-      const response = await api().get(`/chats`, { params: { userID: loggedUser?.getId() } });
+      const response = await api().get(`/chats`, { params: { userID: loggedUser?.getId() }, headers: {
+        'expo-notification-token': expoPushToken,
+        'expo-notification-id': loggedUser.getId()
+      } });
       if (response.data.success) {
         return setDATA(response.data.chats);
       }

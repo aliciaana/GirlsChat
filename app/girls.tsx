@@ -1,34 +1,38 @@
 import { useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useAuthenticatedUser } from "./contextAPI/UserContext";
-import { useToast } from "react-native-toast-notifications";
 import { api } from "./connection/api";
+import Toast from "react-native-toast-message";
+import UserModel from "./models/User";
+import { UserContext } from "./contextAPI/UserContext";
+import UserRepository from "./repository/User";
 
 export default function GirlsScreen() {
   const router = useRouter();
-  const toast = useToast()
-  const userLogged = useAuthenticatedUser(); // Garantido que não é null
-
   const [girls, setGirls] = React.useState<{ id: string; name: string; photo: string }[]>([]);
 
   const handleStartChat = (girl: { id: string; name: string }) => {
     router.push(`/chat?id=null&otherID=${girl.id}`);
-  };
+  }; 
 
   async function loadGirls() {
-    const response = await api().get("/usuarios", { params: { userID: userLogged.getId() } })
+    const loggedUser = await new UserRepository().getUser();
+    const response = await api().get("/usuarios", { params: { userID: loggedUser.getId()} })
     if (response.data.success) {
       const { users } = response.data;
       const girlsData = users.map((user: any) => { return { id: user.id, name: user.name, photo: user.photo }})
       return setGirls(girlsData)
     }
-    return toast.show("Erro ao listar as garotas disponíveis,. " + response.data.msg)
+    Toast.show({
+      type: "danger",
+      text1: "Houve um erro ao carregar as garotas.",
+      text2: response.data.msg,
+    });
   }
 
   useEffect(() => {
     loadGirls()
-  }, [userLogged])
+  }, []);
 
   return (
     <View style={styles.container}>

@@ -2,11 +2,11 @@ import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import UserModel from "./models/User";
-import { useToast } from "react-native-toast-notifications";
-import { useAuthenticatedUser } from "./contextAPI/UserContext";
 import io, { Socket } from 'socket.io-client';
 import { api, apiURL } from "./connection/api";
-
+import Toast from "react-native-toast-message";
+import { UserContext } from "./contextAPI/UserContext";
+import UserRepository from "./repository/User";
 type Message = { id: string; text: string; sender: "me" | "other" };
 
 interface Chat {
@@ -41,12 +41,10 @@ export default function ChatScreen() {
   const [socket, setSocket] = useState<SocketIOClient.Socket | null>(null);
   const [otherUser, setOtherUser] = useState<UserModel | null>(null);
   const listRef = useRef<FlatList>(null);
-  const toast = useToast()
-  const userLogged = useAuthenticatedUser(); // Garantido que não é null
-
-  const sendMessage = () => {
-    if (input.trim() && socket && userLogged.getId()) {
-      socket.emit('send-message', { sentByID: userLogged.getId(), sentToID: otherID, text: input });
+  const sendMessage = async () => {
+    const loggedUser = await new UserRepository().getUser();
+    if (input.trim() && socket && loggedUser.getId()) {
+      socket.emit('send-message', { sentByID: loggedUser.getId(), sentToID: otherID, text: input });
       setInput('');
     }
   };
@@ -62,7 +60,6 @@ export default function ChatScreen() {
       markMessagesAsSeen(loadedChat)
       return setChat(loadedChat)
     }
-    toast.show("Houve um erro no carregamento das mensagens. " + response.data.msg);
   }
 
   async function loadOtherUser() {
@@ -75,29 +72,39 @@ export default function ChatScreen() {
       user.setEmail(userData.email);
       setOtherUser(user);
     } else {
-      toast.show("Houve um erro ao carregar o usuário. " + response.data.msg);
+      Toast.show({
+        type: "danger",
+        text1: "Houve um erro ao carregar o usuário.",
+        text2: response.data.msg,
+      });
     }
   }
 
-  function loadMessages(chat: Chat | null) {
+  async function loadMessages(chat: Chat | null) {
+    const loggedUser = await new UserRepository().getUser();
     if (!chat) return;
     const messagesData: Message[] = chat.messages.map((message) => {
       return {
         id: message.id.toString(),
         text: message.text,
-        sender: message.sent_by == Number(userLogged.getId()) ? "me" : "other"
+        sender: message.sent_by == Number(loggedUser.getId()) ? "me" : "other"
       }
     })
     setMessages(messagesData)
   }
 
   async function markMessagesAsSeen(loadedChat: Chat) {
+    const loggedUser = await new UserRepository().getUser();
     if (!loadedChat) return;
     const response = await api().put(`/chat/${loadedChat.id}/atualizar-status-visto`, {
-      userID: userLogged.getId()
+      userID: loggedUser?.getId()
     });
     if (!response.data.success) {
-      toast.show("Houve um erro ao marcar as mensagens como vistas. " + response.data.msg);
+      Toast.show({
+        type: "danger",
+        text1: "Houve um erro ao marcar as mensagens como vistas.",
+        text2: response.data.msg,
+      });
     }
   }
 
@@ -112,24 +119,25 @@ export default function ChatScreen() {
 
   useEffect(()=>{
     loadChat()
-  }, [userLogged])
+  }, [])
 
   useEffect(() => {
     loadMessages(chat)
   }, [chat]);
 
   useEffect(() => {
-    const newSocket = io(apiURL);
-
-    newSocket.on(`receive-message-${userLogged.getId()}`, (msg: { id: string, text: string, sentBy: number }) => {
-      setMessages((prev) => [...prev, { id: msg.id, text: msg.text, sender: msg.sentBy === Number(otherID) ? "other" : "me" }]);
+    new UserRepository().getUser().then((userLogged) => {
+      const newSocket = io(apiURL);    
+      newSocket.on(`receive-message-${userLogged?.getId()}`, (msg: { id: string, text: string, sentBy: number }) => {
+        setMessages((prev) => [...prev, { id: msg.id, text: msg.text, sender: msg.sentBy === Number(otherID) ? "other" : "me" }]);
+      });
+  
+      setSocket(newSocket);
+  
+      return () => {
+        newSocket.close();
+      };
     });
-
-    setSocket(newSocket);
-
-    return () => {
-      newSocket.close();
-    };
   }, []);
 
   return (

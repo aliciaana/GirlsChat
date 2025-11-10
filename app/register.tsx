@@ -2,16 +2,14 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-nativ
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import UserModel from "./models/User";
-import UserRepository from "./repository/User";
-import { useToast } from "react-native-toast-notifications";
 import { api } from "./connection/api";
+import Toast from "react-native-toast-message";
 
 export default function RegisterScreen() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const toast = useToast();
 
   async function handleRegister() {
     const response = await api().post("criar-usuario", {
@@ -26,10 +24,17 @@ export default function RegisterScreen() {
       user.setId(userResponse.id);
       user.setName(userResponse.name);
       user.setEmail(userResponse.email);
-      toast.show("Usuário criado com sucesso!", { type: "success" });
+      Toast.show({
+        type: "success",
+        text1: "Usuário criado com sucesso!",
+      });
       router.push("/");
     } else {
-      toast.show("Erro ao criar usuário. " + response.data.msg, { type: "danger" });
+      Toast.show({
+        type: "danger",
+        text1: "Erro ao criar usuário.",
+        text2: response.data.msg,
+      });
       console.error("Error creating user:", response.data.msg);
     }
   }

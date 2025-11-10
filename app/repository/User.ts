@@ -10,7 +10,7 @@ export default class UserRepository {
         }
     }
 
-    async getUser(): Promise<UserModel | null> {
+    async getUser(): Promise<UserModel> {
         try {
             const userData = await AsyncStorage.getItem('user');
             if (userData) {
@@ -21,10 +21,10 @@ export default class UserRepository {
                 user.setEmail(parsedData.email);
                 return user;
             }
-            return null;
+            throw new Error("No user found");
         } catch (error) {
             console.error("Failed to get user:", error);
-            return null;
+            throw error;
         }
     }
 
