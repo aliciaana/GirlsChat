@@ -27,6 +27,7 @@
     "@adonisjs/lucid": "^16.3.2",
     "@adonisjs/repl": "^3.1.11",
     "expo-server-sdk": "^3.11.0",
+    "firebase-admin": "^13.6.0",
     "js-md5": "^0.8.3",
     "luxon": "^3.7.2",
     "mysql2": "^3.15.0",

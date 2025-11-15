@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import UserModel from "./models/User";
@@ -7,6 +7,7 @@ import { api, apiURL } from "./connection/api";
 import Toast from "react-native-toast-message";
 import { UserContext } from "./contextAPI/UserContext";
 import UserRepository from "./repository/User";
+import { IconSymbol } from "@/components/ui/IconSymbol";
 type Message = { id: string; text: string; sender: "me" | "other" };
 
 interface Chat {
@@ -50,16 +51,18 @@ export default function ChatScreen() {
   };
 
   async function loadChat() {
+    const loggedUser = await new UserRepository().getUser();
     const decodedId = decodeURIComponent(id || '');
     if (decodedId === 'null') {
       return;
     }
-    const response = await api().get("/chat/" + decodedId);
+    const response = await api().get("/chat", { params: { id: decodedId, userID: loggedUser.getId() } });
     if (response.data.success) {
       const loadedChat = response.data.chat;
       markMessagesAsSeen(loadedChat)
       return setChat(loadedChat)
     }
+    alert("Houve um erro ao carregar o chat: " + response.data.msg);
   }
 
   async function loadOtherUser() {
@@ -146,10 +149,12 @@ export default function ChatScreen() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       keyboardVerticalOffset={90}
     >
-      <View style={styles.header}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: "#d63384", padding: 15 }}>
+        <TouchableOpacity style={{ height: 40, width: 40 }} onPressOut={() => router.back()}>
+          <IconSymbol name="arrow.backward" color="#fff"></IconSymbol>
+        </TouchableOpacity>
         <Text style={styles.headerText}>{otherUser?.getName() ?? "Girl"}</Text>
       </View>
-
       <FlatList
         ref={listRef}
         data={messages}
@@ -182,11 +187,10 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#ffe6f0" },
   header: {
-    padding: 15,
     backgroundColor: "#d63384",
     alignItems: "center"
   },
-  headerText: { fontSize: 18, fontWeight: "700", color: "#fff" },
+  headerText: { fontSize: 20, fontWeight: "700", color: "#fff", height: 40 },
   messagesContainer: { padding: 10, paddingBottom: 20 },
   message: {
     maxWidth: "75%",

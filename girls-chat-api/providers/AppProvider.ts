@@ -1,4 +1,5 @@
 import type { ApplicationContract } from '@ioc:Adonis/Core/Application'
+import FirebaseAdminService from 'App/services/FirebaseAdmin'
 
 export default class AppProvider {
   constructor (protected app: ApplicationContract) {
@@ -9,6 +10,7 @@ export default class AppProvider {
   }
 
   public async boot () {
+    FirebaseAdminService.init()
     // IoC container is ready
   }
 

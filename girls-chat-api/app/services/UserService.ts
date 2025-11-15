@@ -1,6 +1,9 @@
 import User from "App/Models/User";
 import { isValidEmail } from "../../utils/validation";
 import { md5 } from "js-md5";
+import { MultipartFileContract } from '@ioc:Adonis/Core/BodyParser';
+import { FirebaseAdminService } from "./FirebaseAdmin";
+
 
 export default class UserService {
     public async getUserByEmailAndPassword(email: string, password: string) {
@@ -44,7 +47,7 @@ export default class UserService {
         }
     }
 
-    public async updateUser(userID: string, updatedData: any) {
+    public async updateUser(userID: string, updatedData: { UF?: string; city?: string; bio?: string; name?: string; email?: string; password?: string; profile_picture?: string }) {
         try {
             if (!userID) {
                 throw new Error("O ID do usuário é obrigatório");
@@ -78,13 +81,52 @@ export default class UserService {
             if (!userID) {
                 throw new Error("O ID do usuário é obrigatório")
             }
-            const user = await User.find(userID);
+            let user = await User.find(userID);
             if (!user) {
                 throw new Error("Usuário não encontrado")
             }
             return user;
         } catch (error) {
             throw new Error("Erro ao buscar usuário: " + error.message);
+        }
+    }
+
+    public async saveProfilePicture(userID: string | number, file: MultipartFileContract) {
+        try {
+            if (!userID || !file) {
+                throw new Error("O ID do usuário e a imagem são obrigatórios");
+            }
+            const user = await User.find(userID);
+            if (!user) {
+                throw new Error("Usuário não encontrado");
+            }
+            user.profile_picture = `${userID}.${file.extname}`;
+            const metadata = await this.saveProfilePictureGoogleStorage(file, user.profile_picture);
+            if (!metadata || !metadata.publicUrl()) {
+                throw new Error("Falha ao fazer upload da imagem");
+            }
+            await metadata.makePublic()
+            user.profile_picture = metadata.publicUrl();
+            await user.save();
+            return user;
+        } catch (error) {
+            throw new Error("Erro ao salvar imagem de perfil: " + error.message);
+        }
+    }
+
+    public async saveProfilePictureGoogleStorage(file: MultipartFileContract, filename: string) {
+        try {
+            const storage = FirebaseAdminService.getStorage();
+            const defaultBucket = storage.bucket();
+            const [uploadedFile] = await defaultBucket.upload(file.tmpPath!, {
+                destination: filename,
+                metadata: {
+                    contentType: file.type,
+                },
+            });
+            return uploadedFile;
+        } catch (error) {
+            throw new Error("Erro ao salvar imagem de perfil no Google Storage: " + error.message);
         }
     }
 }

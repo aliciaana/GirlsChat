@@ -7,19 +7,17 @@ export default class ChatsController {
         try {
             const userID = request.input('userID');
             const uniqueChats = await this.chatsService.getUserChats(userID);
-            uniqueChats.forEach(chat => {
-                console.log(`Chat ID: ${chat.id}`, chat.messages);
-            });
             return response.json({ success: true, chats: uniqueChats });
         } catch (error) {
             return response.json({ success: false, msg: error.message });
         }
     }
 
-    public async show({ response, params }: HttpContextContract) {
+    public async show({ request,response }: HttpContextContract) {
         try {
-            const chatID = params.id.split('%')[0];
-            const chat = await this.chatsService.showChat(chatID);
+            const chatID = request.input('id');
+            const userLoggedID = request.input('userID');
+            const chat = await this.chatsService.showChat(chatID, userLoggedID);
             if (!chat) {
                 throw new Error("Chat não encontrado");
             }

@@ -1,11 +1,11 @@
 import { useRouter } from "expo-router";
 import { useContext, useState } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import UserModel from "../models/User";
-import UserRepository from "../repository/User";
+import { api } from "./connection/api";
+import UserModel from "./models/User";
+import UserRepository from "./repository/User";
 import Toast from "react-native-toast-message";
-import { UserContext } from "../contextAPI/UserContext";
-import { api } from "../connection/api";
+
 
 export default function LoginScreen() {
   const router = useRouter();

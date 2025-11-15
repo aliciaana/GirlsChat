@@ -43,14 +43,18 @@ export default class UsersController {
     public async update({ request, response, params }: HttpContextContract) {
         try {
             const { UF, city, bio, name, email, password } = request.body();
+            const profile_picture = request.file('profile_picture');
             const userID = params.id;
-            const updatedData: { UF?: string; city?: string; bio?: string; name?: string; email?: string; password?: string } = {};
+            const updatedData: { UF?: string; city?: string; bio?: string; name?: string; email?: string; password?: string; profile_picture?: string } = {};
             if (UF) updatedData.UF = UF;
             if (city) updatedData.city = city;
             if (bio) updatedData.bio = bio;
             if (name) updatedData.name = name;
             if (email) updatedData.email = email;
             if (password) updatedData.password = md5(password);
+            if (profile_picture) {
+                await this.userService.saveProfilePicture(userID, profile_picture);
+            };
             const user = await this.userService.updateUser(userID, updatedData);
             return response.json({ success: true, user });
         } catch (error) {

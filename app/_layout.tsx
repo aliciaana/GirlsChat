@@ -10,7 +10,7 @@ import { useContext, useEffect } from 'react';
 import UserRepository from './repository/User';
 import { usePushNotifications } from './providers/usePushNotifications';
 
-function RootLayoutNav() {
+export default function RootLayout() {
   const colorScheme = useColorScheme();
   const { userLogged, setUserLogged } = useContext(UserContext);
   const { notification } = usePushNotifications();

@@ -4,17 +4,18 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native
 import * as ImagePicker from 'expo-image-picker';
 import * as Notifications from 'expo-notifications';
 import { useEffect } from 'react';
-import UserRepository from "./repository/User";
-import { api } from "./connection/api";
-import { UserContext } from "./contextAPI/UserContext";
-import { usePushNotifications } from "./providers/usePushNotifications";
+import { UserContext } from "../contextAPI/UserContext";
+import { usePushNotifications } from "../providers/usePushNotifications";
+import UserRepository from "../repository/User";
+import { api } from "../connection/api";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Image } from "expo-image";
 
 type Conv = {
   id: number;
   id_host: number;
   last_message: string | null;
   last_message_at: string | null;
-  participant: number;
   created_at: string;
   updated_at: string;
   host: {
@@ -26,14 +27,15 @@ type Conv = {
     created_at: string;
     updated_at: string;
   };
-  participantUser: {
-    id: number;
-    email: string;
-    name: string;
-    last_login: string | null;
-    created_at: string;
-    updated_at: string;
-  };
+  otherParticipants: {
+      id: number;
+      email: string;
+      name: string;
+      last_login: string | null;
+      created_at: string;
+      updated_at: string;
+      profile_picture: string | null;
+  }[];
   messages: any[]
 };
 
@@ -58,6 +60,7 @@ export default function ConversationsScreen() {
   const [DATA, setDATA] = useState<Conv[]>([]);
   const { userLogged } = React.useContext(UserContext);
   const { expoPushToken } = usePushNotifications();
+  const insets = useSafeAreaInsets();
 
   const requestPermissions = async () => {
     const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -74,22 +77,28 @@ export default function ConversationsScreen() {
     }
   };
 
-  const renderItem = ({ item }: { item: Conv }) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => router.push(`/chat?id=${item.id}&otherID=${item.host.id !== Number(userLogged.getId()) ? item.host.id : item.participantUser.id}`)}
-    >
-      <Avatar name={item.host.id !== Number(userLogged.getId()) ? item.host.name : item.participantUser.name} />
-      <View style={styles.cardContent}>
-        <Text style={styles.name}>{item.host.id !== Number(userLogged.getId()) ? item.host.name : item.participantUser.name}</Text>
-        {item.messages.length ? (
-          <View style={styles.notRead}>
-            <Text style={styles.notReadText}>{item.messages.length}</Text>
-          </View>
-        ) : null}
-      </View>
-    </TouchableOpacity>
-  );
+  const renderItem = ({ item }: { item: Conv }) => {
+    return (
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => router.push(`/chat?id=${item.id}&otherID=${item.otherParticipants[0].id}`)}
+      >
+        {item.otherParticipants[0].profile_picture ? (
+          <Image source={{ uri: item.otherParticipants[0].profile_picture }} style={styles.avatar} />
+        ) : (
+          <Avatar name={item.otherParticipants[0].name} />
+        )}
+        <View style={styles.cardContent}>
+          <Text style={styles.name}>{item.otherParticipants[0].name}</Text>
+          {item.messages.length ? (
+            <View style={styles.notRead}>
+              <Text style={styles.notReadText}>{item.messages.length}</Text>
+            </View>
+          ) : null}
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   async function loadConversations() {
     try {
@@ -124,7 +133,7 @@ export default function ConversationsScreen() {
         contentContainerStyle={{ paddingBottom: 120 }}
       />
 
-      <TouchableOpacity style={styles.fab} onPress={() => router.push("/girls")}>
+      <TouchableOpacity style={[styles.fab, { bottom: insets.bottom + 80 }]} onPress={() => router.push("/girls")}>
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
     </View>
@@ -187,5 +196,5 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 10,
     fontWeight: "700"
-  }
+  },
 });

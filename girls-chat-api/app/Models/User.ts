@@ -1,8 +1,9 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, hasMany, HasMany } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, column, hasMany, HasMany, manyToMany, ManyToMany } from '@ioc:Adonis/Lucid/Orm'
 import Chat from './Chat'
 import Message from './Message'
 import Notification from './Notification'
+import Participant from './Participant'
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
@@ -16,6 +17,12 @@ export default class User extends BaseModel {
 
   @column()
   public name: string
+
+  @column()
+  public bio: string
+
+  @column()
+  public profile_picture: string
 
   @column.dateTime()
   public lastLogin: DateTime
@@ -32,11 +39,6 @@ export default class User extends BaseModel {
   })
   public hostedChats: HasMany<typeof Chat>
 
-  @hasMany(() => Chat, {
-    foreignKey: 'participant'
-  })
-  public participatingChats: HasMany<typeof Chat>
-
   @hasMany(() => Message, {
     foreignKey: 'sentBy'
   })
@@ -51,4 +53,20 @@ export default class User extends BaseModel {
     foreignKey: 'id_user'
   })
   public notifications: HasMany<typeof Notification>
+
+  // Relacionamento many-to-many com Chats através de Participant
+  @manyToMany(() => Chat, {
+    pivotTable: 'participants',
+    localKey: 'id',
+    pivotForeignKey: 'id_user',
+    relatedKey: 'id',
+    pivotRelatedForeignKey: 'id_chat'
+  })
+  public participatingChats: ManyToMany<typeof Chat>
+
+  // Relacionamento com a tabela pivot
+  @hasMany(() => Participant, {
+    foreignKey: 'id_user'
+  })
+  public participantRecords: HasMany<typeof Participant>
 }
