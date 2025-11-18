@@ -153,38 +153,38 @@ classDiagram
     }
 
     %% === RELATIONSHIPS BETWEEN MODELS ===
-    User ||--o{ Chat : "hosts (1:N)"
-    User ||--o{ Message : "sends (1:N)"
-    User ||--o{ Message : "receives (1:N)"
-    User ||--o{ Notification : "receives (1:N)"
-    User ||--o{ Participant : "participates (1:N)"
-    User ||--o{ TokenUser : "has tokens (1:N)"
+    User ||--o{ Chat : "hosts"
+    User ||--o{ Message : "sends"
+    User ||--o{ Message : "receives" 
+    User ||--o{ Notification : "receives"
+    User ||--o{ Participant : "participates"
+    User ||--o{ TokenUser : "has_tokens"
 
-    Chat ||--o{ Message : "contains (1:N)"
-    Chat ||--o{ Notification : "generates (1:N)"
-    Chat ||--o{ Participant : "has participants (1:N)"
+    Chat ||--o{ Message : "contains"
+    Chat ||--o{ Notification : "generates"
+    Chat ||--o{ Participant : "has_participants"
 
-    User }|--|| Participant : "many-to-many via"
-    Chat }|--|| Participant : "many-to-many via"
+    User ||--o{ Participant : "user_participants"
+    Chat ||--o{ Participant : "chat_participants"
 
     %% === RELATIONSHIPS BETWEEN CONTROLLERS AND SERVICES ===
-    UsersController --> UserService : uses
-    ChatsController --> ChatsService : uses
-    MessagesController --> MessagesService : uses
+    UsersController --> UserService : "uses"
+    ChatsController --> ChatsService : "uses"
+    MessagesController --> MessagesService : "uses"
 
     %% === RELATIONSHIPS BETWEEN SERVICES AND MODELS ===
-    UserService --> User : manages
-    ChatsService --> Chat : manages
-    ChatsService --> Participant : manages
-    MessagesService --> Message : manages
+    UserService --> User : "manages"
+    ChatsService --> Chat : "manages"
+    ChatsService --> Participant : "manages"
+    MessagesService --> Message : "manages"
 
-    PushNotificationService --> TokenUser : uses
-    PushNotificationService --> FirebaseAdmin : uses
-    IoSocketServer --> MessagesService : uses
-    IoSocketServer --> ChatsService : uses
+    PushNotificationService --> TokenUser : "uses"
+    PushNotificationService --> FirebaseAdmin : "uses"
+    IoSocketServer --> MessagesService : "uses"
+    IoSocketServer --> ChatsService : "uses"
 
     %% === MIDDLEWARE RELATIONSHIPS ===
-    ExpoPushNotification --> PushNotificationService : uses
+    ExpoPushNotification --> PushNotificationService : "uses"
 ```
 
 ## Descrição da Arquitetura
