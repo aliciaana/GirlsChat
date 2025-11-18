@@ -2,24 +2,19 @@
 
 ```mermaid
 classDiagram
-    %% === MODELS ===
     class User {
-        -id: number [PK]
-        -email: string
-        -password: string
-        -name: string
-        -bio: string
-        -profile_picture: string
-        -lastLogin: DateTime
-        -createdAt: DateTime
-        -updatedAt: DateTime
-        --Relationships--
-        +hostedChats: HasMany~Chat~
-        +sentMessages: HasMany~Message~
-        +receivedMessages: HasMany~Message~
-        +notifications: HasMany~Notification~
-        +participatingChats: ManyToMany~Chat~
-        +participantRecords: HasMany~Participant~
+        +id: number
+        +email: string
+        +password: string
+        +name: string
+        +bio: string
+        +profile_picture: string
+        +lastLogin: DateTime
+        +createdAt: DateTime
+        +updatedAt: DateTime
+        +login()
+        +signUp()
+        +updateProfile()
     }
 
     class Chat {

@@ -2,7 +2,6 @@
 
 ```mermaid
 classDiagram
-    %% MODELS
     class User {
         +id: number
         +email: string
@@ -61,65 +60,62 @@ classDiagram
         +updatedAt: DateTime
     }
 
-    %% CONTROLLERS
     class UsersController {
         -userService: UserService
-        +login(): Response
-        +signUp(): Response
-        +index(): Response
-        +update(): Response
-        +findById(): Response
+        +login()
+        +signUp()
+        +index()
+        +update()
+        +findById()
     }
 
     class ChatsController {
         -chatsService: ChatsService
-        +index(): Response
-        +show(): Response
-        +create(): Response
+        +index()
+        +show()
+        +create()
     }
 
     class MessagesController {
         -messagesService: MessagesService
-        +index(): Response
-        +create(): Response
-        +updateSeenStatus(): Response
+        +index()
+        +create()
+        +updateSeenStatus()
     }
 
-    %% SERVICES
     class UserService {
-        +getUserByEmailAndPassword(): User
-        +createUser(): User
-        +getAllUsersExcept(): User[]
-        +updateUser(): User
-        +getUserById(): User
-        +saveProfilePicture(): void
+        +getUserByEmailAndPassword()
+        +createUser()
+        +getAllUsersExcept()
+        +updateUser()
+        +getUserById()
+        +saveProfilePicture()
     }
 
     class ChatsService {
-        +getUserChats(): Chat[]
-        +showChat(): Chat
-        +createChat(): Chat
+        +getUserChats()
+        +showChat()
+        +createChat()
     }
 
     class MessagesService {
-        +getMessagesByChatID(): Message[]
-        +createMessage(): Message
-        +updateMessageSeenStatus(): void
+        +getMessagesByChatID()
+        +createMessage()
+        +updateMessageSeenStatus()
     }
 
     class PushNotificationService {
-        +sendNotification(): void
-        +sendMultipleNotifications(): void
+        +sendNotification()
+        +sendMultipleNotifications()
     }
 
     class IoSocketServer {
-        +setupSocketHandlers(): void
-        +handleConnection(): void
-        +handleDisconnection(): void
-        +broadcastMessage(): void
+        +setupSocketHandlers()
+        +handleConnection()
+        +handleDisconnection()
+        +broadcastMessage()
     }
 
-    %% RELATIONSHIPS
     User ||--o{ Chat : hosts
     User ||--o{ Message : sends
     User ||--o{ Message : receives
@@ -134,13 +130,13 @@ classDiagram
     User ||--o{ Participant : user_relation
     Chat ||--o{ Participant : chat_relation
 
-    UsersController --> UserService
-    ChatsController --> ChatsService
-    MessagesController --> MessagesService
+    UsersController ..> UserService
+    ChatsController ..> ChatsService
+    MessagesController ..> MessagesService
 
-    UserService --> User
-    ChatsService --> Chat
-    MessagesService --> Message
+    UserService ..> User
+    ChatsService ..> Chat
+    MessagesService ..> Message
 ```
 
 ## Resumo da Arquitetura
