@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "node ace serve --watch",
-    "build": "node ace build --production",
-    "start": "node server.js",
-    "test": "node ace test"
+    "build": "node ace build --production --ignore-ts-errors",
+    "start": "node build/server.js",
+    "test": "node ace test",
+    "copy-firebase-service-account": "cp ./firebase-service-account.json ./build/firebase-service-account.json"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^5.9.6",

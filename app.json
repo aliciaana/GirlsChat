@@ -4,10 +4,8 @@
     "slug": "girls-chat",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -20,11 +18,11 @@
         "NSPhotoLibraryUsageDescription": "Este app precisa acessar sua galeria para enviar fotos nas conversas.",
         "NSCameraUsageDescription": "Este app precisa acessar a câmera para tirar fotos.",
         "NSUserNotificationsUsageDescription": "Este app envia notificações sobre novas mensagens."
-      }
+      },
+      "bundleIdentifier": "com.anonymous.girlschat"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": [
@@ -33,11 +31,15 @@
         "android.permission.CAMERA",
         "android.permission.RECEIVE_BOOT_COMPLETED",
         "android.permission.VIBRATE",
+        "android.permission.WAKE_LOCK",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.CAMERA",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE",
         "android.permission.WAKE_LOCK"
-      ]
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
+      ],
+      "package": "com.anonymous.girlschat"
     },
     "plugins": [
       "expo-notifications"

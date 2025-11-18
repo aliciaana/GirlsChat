@@ -101,21 +101,27 @@ export default class UserService {
                 throw new Error("Usuário não encontrado");
             }
             user.profile_picture = `${userID}.${file.extname}`;
+            console.log("user.profile_picture", user);
             const metadata = await this.saveProfilePictureGoogleStorage(file, user.profile_picture);
             if (!metadata || !metadata.publicUrl()) {
+                console.log("chegou aqui");
                 throw new Error("Falha ao fazer upload da imagem");
             }
+            console.log("user.profile_picture", user);            
             await metadata.makePublic()
             user.profile_picture = metadata.publicUrl();
             await user.save();
             return user;
         } catch (error) {
+            console.log('qqaaa');
+            
             throw new Error("Erro ao salvar imagem de perfil: " + error.message);
         }
     }
 
     public async saveProfilePictureGoogleStorage(file: MultipartFileContract, filename: string) {
         try {
+            
             const storage = FirebaseAdminService.getStorage();
             const defaultBucket = storage.bucket();
             const [uploadedFile] = await defaultBucket.upload(file.tmpPath!, {

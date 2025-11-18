@@ -2,7 +2,7 @@ import axios from "axios";
 import UserRepository from "../repository/User";
 import { usePushNotifications } from "../providers/usePushNotifications";
 
-export const apiURL = "http://192.168.0.11:3333";
+export const apiURL = "https://girls-chat-api.onrender.com";
 
 export function api() {
   // const config: any = { baseURL: apiURL };
