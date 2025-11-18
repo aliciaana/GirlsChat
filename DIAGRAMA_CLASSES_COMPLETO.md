@@ -2,8 +2,9 @@
 
 ```mermaid
 classDiagram
+    %% === MODELS ===
     class User {
-        +id: number
+        +id: number [PK]
         +email: string
         +password: string
         +name: string
@@ -12,9 +13,13 @@ classDiagram
         +lastLogin: DateTime
         +createdAt: DateTime
         +updatedAt: DateTime
+        --Methods--
         +login()
         +signUp()
         +updateProfile()
+        --Relationships--
+        +hostedChats: HasMany~Chat~
+        +sentMessages: HasMany~Message~
     }
 
     class Chat {
@@ -147,39 +152,39 @@ classDiagram
         +handle(ctx: HttpContextContract, next: function): Promise~void~
     }
 
-    %% === RELATIONSHIPS BETWEEN MODELS ===
-    User ||--o{ Chat : "hosts"
-    User ||--o{ Message : "sends"
-    User ||--o{ Message : "receives" 
-    User ||--o{ Notification : "receives"
-    User ||--o{ Participant : "participates"
-    User ||--o{ TokenUser : "has_tokens"
+    %% === RELATIONSHIPS BETWEEN MODELS (Corrigido para evitar o erro de sintaxe) ===
+    User "1" -- "0..*" Chat : hosts
+    User "1" -- "0..*" Message : sends
+    User "1" -- "0..*" Message : receives 
+    User "1" -- "0..*" Notification : receives
+    User "1" -- "0..*" Participant : participates
+    User "1" -- "0..*" TokenUser : has_tokens
 
-    Chat ||--o{ Message : "contains"
-    Chat ||--o{ Notification : "generates"
-    Chat ||--o{ Participant : "has_participants"
+    Chat "1" -- "0..*" Message : contains
+    Chat "1" -- "0..*" Notification : generates
+    Chat "1" -- "0..*" Participant : has_participants
 
-    User ||--o{ Participant : "user_participants"
-    Chat ||--o{ Participant : "chat_participants"
+    User "1" -- "0..*" Participant : user_participants
+    Chat "1" -- "0..*" Participant : chat_participants
 
     %% === RELATIONSHIPS BETWEEN CONTROLLERS AND SERVICES ===
-    UsersController --> UserService : "uses"
-    ChatsController --> ChatsService : "uses"
-    MessagesController --> MessagesService : "uses"
+    UsersController --> UserService : uses
+    ChatsController --> ChatsService : uses
+    MessagesController --> MessagesService : uses
 
     %% === RELATIONSHIPS BETWEEN SERVICES AND MODELS ===
-    UserService --> User : "manages"
-    ChatsService --> Chat : "manages"
-    ChatsService --> Participant : "manages"
-    MessagesService --> Message : "manages"
+    UserService --> User : manages
+    ChatsService --> Chat : manages
+    ChatsService --> Participant : manages
+    MessagesService --> Message : manages
 
-    PushNotificationService --> TokenUser : "uses"
-    PushNotificationService --> FirebaseAdmin : "uses"
-    IoSocketServer --> MessagesService : "uses"
-    IoSocketServer --> ChatsService : "uses"
+    PushNotificationService --> TokenUser : uses
+    PushNotificationService --> FirebaseAdmin : uses
+    IoSocketServer --> MessagesService : uses
+    IoSocketServer --> ChatsService : uses
 
     %% === MIDDLEWARE RELATIONSHIPS ===
-    ExpoPushNotification --> PushNotificationService : "uses"
+    ExpoPushNotification --> PushNotificationService : uses
 ```
 
 ## Descrição da Arquitetura
