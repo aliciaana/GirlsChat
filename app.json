@@ -42,7 +42,10 @@
       "package": "com.anonymous.girlschat"
     },
     "plugins": [
-      "expo-notifications"
+      "expo-notifications",
+      "expo-font",
+      "expo-router",
+      "expo-web-browser"
     ]
   }
 }
