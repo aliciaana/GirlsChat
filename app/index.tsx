@@ -47,6 +47,7 @@ export default function LoginScreen() {
         placeholderTextColor="#888"
         value={email}
         onChangeText={setEmail}
+        id="name-input"
       />
       <TextInput
         style={styles.input}
@@ -55,6 +56,7 @@ export default function LoginScreen() {
         secureTextEntry
         value={password}
         onChangeText={setPassword}
+        id="password-input"
       />
 
       <TouchableOpacity style={styles.buttonPink} onPress={() => handleLogin()}>
