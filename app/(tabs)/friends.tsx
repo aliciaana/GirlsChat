@@ -3,52 +3,98 @@ import UserRepository from "../repository/User";
 import { api } from "../connection/api";
 import React, { useEffect } from "react";
 import Toast from "react-native-toast-message";
-import { FlatList, Text, TouchableOpacity, View, StyleSheet } from "react-native";
+import { FlatList, Text, TouchableOpacity, View, StyleSheet, ActivityIndicator } from "react-native";
+import { Image } from "expo-image";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+type Girl = {
+  id: string;
+  name: string;
+  profile_picture: string | null;
+};
 
 export default function GirlsScreen() {
   const router = useRouter();
-  const [girls, setGirls] = React.useState<{ id: string; name: string; photo: string }[]>([]);
+  const insets = useSafeAreaInsets();
+  const [girls, setGirls] = React.useState<Girl[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
-  const handleStartChat = (girl: { id: string; name: string }) => {
+  const handleStartChat = (girl: Girl) => {
     router.push(`/chat?id=null&otherID=${girl.id}`);
-  }; 
+  };
 
   async function loadGirls() {
-    const loggedUser = await new UserRepository().getUser();
-    const response = await api().get("/usuarios", { params: { userID: loggedUser.getId()} })
-    if (response.data.success) {
-      const { users } = response.data;
-      const girlsData = users.map((user: any) => { return { id: user.id, name: user.name, photo: user.photo }})
-      return setGirls(girlsData)
+    try {
+      setLoading(true);
+      const loggedUser = await new UserRepository().getUser();
+      const response = await api().get("/usuarios", { params: { userID: loggedUser.getId() } });
+      if (response.data.success) {
+        const { users } = response.data;
+        // FIX: campo corrigido de user.photo para user.profile_picture
+        const girlsData = users.map((user: any) => ({
+          id: user.id,
+          name: user.name,
+          profile_picture: user.profile_picture ?? null,
+        }));
+        return setGirls(girlsData);
+      }
+      Toast.show({
+        type: "danger",
+        text1: "Houve um erro ao carregar as garotas.",
+        text2: response.data.msg,
+      });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
     }
-    Toast.show({
-      type: "danger",
-      text1: "Houve um erro ao carregar as garotas.",
-      text2: response.data.msg,
-    });
   }
 
   useEffect(() => {
-    loadGirls()
+    loadGirls();
   }, []);
+
+  const renderItem = ({ item }: { item: Girl }) => (
+    <TouchableOpacity style={styles.card} onPress={() => handleStartChat(item)} activeOpacity={0.75}>
+      {item.profile_picture ? (
+        <Image
+          source={{ uri: item.profile_picture }}
+          style={styles.avatarImage}
+          contentFit="cover"
+        />
+      ) : (
+        <View style={styles.avatarFallback}>
+          <Text style={styles.avatarText}>{item.name.charAt(0).toUpperCase()}</Text>
+        </View>
+      )}
+      <View style={styles.cardContent}>
+        <Text style={styles.name}>{item.name}</Text>
+        <Text style={styles.cta}>Toque para conversar →</Text>
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Escolha uma Girl para conversar</Text>
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+        <Text style={styles.headerTitle}>Girls 💕</Text>
+        <Text style={styles.headerSubtitle}>Escolha uma amiga para conversar</Text>
+      </View>
 
-      <FlatList
-        data={girls}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.card} onPress={() => handleStartChat(item)}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{item.name.charAt(0)}</Text>
-            </View>
-            <Text style={styles.name}>{item.name}</Text>
-          </TouchableOpacity>
-        )}
-      />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#d63384" />
+        </View>
+      ) : (
+        <FlatList
+          data={girls}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </View>
   );
 }
@@ -57,44 +103,80 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#ffe6f0",
-    padding: 20
   },
-  title: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#d63384",
-    marginBottom: 20,
-    textAlign: "center"
+  header: {
+    backgroundColor: "#d63384",
+    paddingBottom: 24,
+    paddingHorizontal: 24,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
+    marginBottom: 16,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: "800",
+    color: "#fff",
+    marginBottom: 2,
+  },
+  headerSubtitle: {
+    fontSize: 13,
+    color: "rgba(255,255,255,0.75)",
+    fontWeight: "500",
+  },
+  listContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 100,
   },
   card: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#fff",
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
+    padding: 14,
+    borderRadius: 18,
+    marginBottom: 10,
+    shadowColor: "#d63384",
+    shadowOpacity: 0.07,
+    shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
-    elevation: 3
+    elevation: 3,
   },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#d63384",
+  avatarImage: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    marginRight: 14,
+  },
+  avatarFallback: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: "#ffb6d6",
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 15
+    marginRight: 14,
   },
   avatarText: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 16
+    color: "#7a0b3b",
+    fontWeight: "800",
+    fontSize: 20,
+  },
+  cardContent: {
+    flex: 1,
   },
   name: {
-    fontSize: 16,
-    color: "#333"
-  }
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#2d2d2d",
+    marginBottom: 2,
+  },
+  cta: {
+    fontSize: 12,
+    color: "#d63384",
+    fontWeight: "500",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
