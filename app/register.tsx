@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import UserModel from "./models/User";
 import { api } from "./connection/api";
 import Toast from "react-native-toast-message";
+import React from "react";
 
 export default function RegisterScreen() {
   const router = useRouter();

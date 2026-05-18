@@ -3,12 +3,12 @@ import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { ToastProvider } from 'react-native-toast-notifications';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
+import React from 'react';
 import { UserContext, UserProvider } from './contextAPI/UserContext';
 import { useContext, useEffect } from 'react';
 import UserRepository from './repository/User';
 import { usePushNotifications } from './providers/usePushNotifications';
+import { useColorScheme } from 'react-native';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();

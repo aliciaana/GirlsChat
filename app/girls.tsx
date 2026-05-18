@@ -5,8 +5,8 @@ import { Image } from "expo-image";
 import { api } from "./connection/api";
 import Toast from "react-native-toast-message";
 import UserRepository from "./repository/User";
-import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { IconSymbol } from "../components/ui/IconSymbol";
 
 type Girl = {
   id: string;

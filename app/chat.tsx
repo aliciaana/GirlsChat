@@ -10,13 +10,15 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import Svg, { Defs, Pattern, Rect, G, Circle, Ellipse, Line, Path, Polygon } from "react-native-svg";
 import UserModel from "./models/User";
 import io from "socket.io-client";
 import { api, apiURL } from "./connection/api";
 import Toast from "react-native-toast-message";
 import UserRepository from "./repository/User";
-import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { IconSymbol } from "../components/ui/IconSymbol";
 
 type Message = { id: string; text: string; sender: "me" | "other" };
 
@@ -139,9 +141,70 @@ export default function ChatScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={HEADER_HEIGHT}
     >
+      {/* SVG Background */}
+      <View style={StyleSheet.absoluteFillObject}>
+        <Svg width="100%" height="100%" viewBox="0 0 400 800">
+          <Defs>
+            <Pattern id="girlsPattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+              {/* Lipstick */}
+              <G transform="translate(10, 10)">
+                <Rect x="0" y="0" width="8" height="20" fill="none" stroke="#ffb0e5" strokeWidth="1.5" rx="2" />
+                <Ellipse cx="4" cy="22" rx="5" ry="3" fill="#ffb0e5" opacity="0.6" />
+              </G>
+
+              {/* Nail Polish */}
+              <G transform="translate(70, 15)">
+                <Rect x="0" y="0" width="6" height="14" fill="none" stroke="#ffb0e5" strokeWidth="1.5" rx="1" />
+                <Rect x="0" y="14" width="6" height="8" fill="#ffb0e5" opacity="0.5" rx="1" />
+              </G>
+
+              {/* Mascara */}
+              <G transform="translate(35, 5)">
+                <Circle cx="0" cy="0" r="3" fill="none" stroke="#ffb0e5" strokeWidth="1.5" />
+                <Circle cx="0" cy="0" r="1.5" fill="#ffb0e5" opacity="0.4" />
+              </G>
+
+              {/* Perfume Bottle */}
+              <G transform="translate(15, 50)">
+                <Rect x="0" y="0" width="5" height="15" fill="none" stroke="#ffb0e5" strokeWidth="1.5" rx="1" />
+                <Rect x="-1" y="-3" width="7" height="3" fill="#ffb0e5" opacity="0.6" rx="0.5" />
+                <Circle cx="2.5" cy="18" r="3" fill="#ffb0e5" opacity="0.5" />
+              </G>
+
+              {/* Makeup Brush */}
+              <G transform="translate(60, 45)">
+                <Ellipse cx="0" cy="0" rx="4" ry="3" fill="#ffb0e5" opacity="0.5" />
+                <Line x1="0" y1="3" x2="0" y2="16" stroke="#ffb0e5" strokeWidth="1.5" />
+              </G>
+
+              {/* Heart */}
+              <G transform="translate(45, 60)">
+                <Path d="M0,3 Q-2,1 -3,2 Q-4,3 -3,4 L0,6 L3,4 Q4,3 3,2 Q2,1 0,3 Z" fill="none" stroke="#ffb0e5" strokeWidth="1" strokeLinejoin="round" />
+              </G>
+
+              {/* Compact Mirror */}
+              <G transform="translate(25, 75)">
+                <Circle cx="0" cy="0" r="4" fill="none" stroke="#ffb0e5" strokeWidth="1.5" />
+                <Circle cx="-1.5" cy="-1" r="1.2" fill="#ffb0e5" opacity="0.4" />
+              </G>
+
+              {/* Star */}
+              <G transform="translate(80, 70)">
+                <Polygon points="0,-3 0.9,-0.9 3,-0.3 1.2,1.4 1.8,3.5 0,2.1 -1.8,3.5 -1.2,1.4 -3,-0.3 -0.9,-0.9" fill="#ffb0e5" opacity="0.5" />
+              </G>
+            </Pattern>
+          </Defs>
+          
+          {/* Base background */}
+          <Rect width="400" height="800" fill="#ffe6f0" />
+          
+          {/* Pattern fill */}
+          <Rect width="400" height="800" fill="url(#girlsPattern)" opacity="0.5" />
+        </Svg>
+      </View>
+
       {/* Header com paddingTop dinâmico baseado nos insets reais */}
       <View style={[styles.header, { paddingTop: insets.top }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>

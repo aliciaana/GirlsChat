@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import React, { useState, useEffect } from "react";
-import { FlatList, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from "react-native";
+import { FlatList, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, Platform } from "react-native";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import * as Notifications from "expo-notifications";
@@ -163,7 +163,7 @@ export default function ConversationsScreen() {
       )}
 
       <TouchableOpacity
-        style={[styles.fab, { bottom: insets.bottom + 80 }]}
+        style={[styles.fab, { bottom: Platform.OS === 'ios' ? insets.bottom + 80 : 10 }]}
         onPress={() => router.push("/girls")}
         activeOpacity={0.85}
       >

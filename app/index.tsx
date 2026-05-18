@@ -5,6 +5,7 @@ import { api } from "./connection/api";
 import UserModel from "./models/User";
 import UserRepository from "./repository/User";
 import Toast from "react-native-toast-message";
+import React from "react";
 
 export default function LoginScreen() {
   const router = useRouter();
